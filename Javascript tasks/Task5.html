@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan EMI Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input {
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        h2 {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Loan EMI Calculator</h1>
+    <div>
+        <label for="loanAmount">Loan Amount:</label>
+        <input type="number" id="loanAmount" value="100000">
+    </div>
+    <div>
+        <label for="interestRate">Interest Rate (annual):</label>
+        <input type="number" id="interestRate" value="10"> %
+    </div>
+    <div>
+        <label for="loanTerm">Loan Term (years):</label>
+        <input type="number" id="loanTerm" value="5">
+    </div>
+    <div>
+        <label for="paidEMIs">Paid EMIs:</label>
+        <input type="number" id="paidEMIs" value="0">
+    </div>
+    <button onclick="calculateEMI()">Calculate EMI</button>
+    <button onclick="checkLoanStatus()">Check Loan Status</button>
+    <h2 id="result"></h2>
+
+    <script>
+
+        const Loan = {
+            loanAmount: 0,
+            interestRate: 0,
+            loanTerm: 0,
+
+            calculateMonthlyPayment: function() {
+                const monthlyInterestRate = this.interestRate / 100 / 12; // Convert percentage to decimal
+                const numberOfPayments = this.loanTerm * 12;
+                const monthlyPayment = this.loanAmount * monthlyInterestRate * (1 + monthlyInterestRate) * numberOfPayments /
+                                       ((1 + monthlyInterestRate) * numberOfPayments - 1);
+                return monthlyPayment.toFixed(2);
+            },
+
+            checkLoanStatus: function(paidEMIs) {
+                const monthlyPayment = parseFloat(this.calculateMonthlyPayment());
+                const totalInterest = (this.loanTerm * 12 * monthlyPayment) - this.loanAmount;
+                const totalAmountPaid = paidEMIs * monthlyPayment;
+                const remainingAmount = (this.loanAmount + totalInterest) - totalAmountPaid;
+                const remainingEMIs = (this.loanTerm * 12) - paidEMIs;
+
+                return {
+                    paidEMIs: paidEMIs,
+                    remainingEMIs: remainingEMIs,
+                    totalAmountPaid: totalAmountPaid.toFixed(2),
+                    remainingAmount: remainingAmount.toFixed(2),
+                };
+            }
+        };
+
+        function calculateEMI() {
+            Loan.loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            Loan.interestRate = parseFloat(document.getElementById('interestRate').value);
+            Loan.loanTerm = parseFloat(document.getElementById('loanTerm').value);
+
+            const monthlyPayment = Loan.calculateMonthlyPayment();
+            document.getElementById('result').innerText = `Monthly Payment (EMI): $${monthlyPayment}`;
+        }
+
+        function checkLoanStatus() {
+            const paidEMIs = parseInt(document.getElementById('paidEMIs').value);
+            const status = Loan.checkLoanStatus(paidEMIs);
+            document.getElementById('result').innerText = `
+                Paid EMIs: ${status.paidEMIs}
+                Remaining EMIs: ${status.remainingEMIs}
+                Total Amount Paid: $${status.totalAmountPaid}
+                Remaining Amount: $${status.remainingAmount}
+            `;
+        }
+    </script>
+</body>
+</html>
+
+    
